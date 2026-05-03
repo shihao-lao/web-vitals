@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <script type="module">
+      // 从CDN导入web-vitals
+      import {
+        onCLS,
+        onFID,
+        onLCP,
+      } from "https://cdn.jsdelivr.net/npm/web-vitals@3.5.2/+esm";
+
+      // 定义一个报告函数
+      const reportWebVitals = (metric) => {
+        console.log("Web Vitals:", metric);
+        // 可以在这里发送数据到监控平台
+      };
+
+      // 监控各项性能指标
+      onCLS(reportWebVitals);
+      onFID(reportWebVitals);
+      onLCP(reportWebVitals);
+    </script>
+  </head>
+  <body>
+    <div>test</div>
+  </body>
+</html>

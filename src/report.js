@@ -1,12 +1,11 @@
 import config from './config.js'
 import { addCache, clearCache, getCache } from './cache.js'
+import { generateUniqueId } from './utils.js'
+
 export const originalProto = XMLHttpRequest.prototype
 export const originalSend = originalProto.send
 export const originalOpen = originalProto.open
 
-export default function generateUniqueId() {
-    return Date.now().toString(36).substring(2)
-}
 export default function report(data) {
     if (!config.url) {
         throw new Error('config.url is required')
@@ -22,11 +21,13 @@ export default function report(data) {
         config.isImage ? imgRequest(reportData) : xhrRequest(reportData)
     }
 }
+
 export function imgRequest(data) {
     const img = new Image()
     // http://127.0.0.1:8080/api?data={...data}
     img.src = `${config.url}?data=${encodeURIComponent(JSON.stringify(data))}`
 }
+
 export function xhrRequest(data) {
     if (window.requestIdleCallback) {
         const xhr = new XMLHttpRequest()
@@ -41,6 +42,7 @@ export function xhrRequest(data) {
     }
 
 }
+
 export function isSupportSendBeacon() {
     return 'sendBeacon' in navigator
 }

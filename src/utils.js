@@ -13,3 +13,7 @@ export function deepClone(target) {
     }
     return result
 }
+
+export function generateUniqueId() {
+    return Date.now().toString(36).substring(2)
+}

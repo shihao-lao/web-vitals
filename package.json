@@ -4,10 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c rollup/build.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.28.2"
+  "packageManager": "pnpm@10.28.2",
+  "devDependencies": {
+    "@babel/preset-env": "^7.29.3",
+    "@rollup/plugin-babel": "^7.0.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "rollup": "^4.60.2"
+  },
+  "dependencies": {
+    "rollup-plugin-json": "^4.0.0"
+  }
 }

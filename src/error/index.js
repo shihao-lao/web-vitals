@@ -1,3 +1,5 @@
+import { lazyReport } from '../report.js';
+
 export default function error() {
   // 捕获资源加载失败的错误 js css img 主要是静态资源
   window.addEventListener(
@@ -18,6 +20,7 @@ export default function error() {
           pageUrl: window.location.href,
           path: e.path,
         };
+        lazyReport(reportData);
       }
     },
     true,
@@ -34,7 +37,6 @@ export default function error() {
       pageUrl: window.location.href,
       startTime: performance.now(),
     };
-    // todo 上报错误
     lazyReport(reportData);
   };
   // 捕获promise错误
@@ -43,11 +45,10 @@ export default function error() {
       type: "error",
       subType: "promise",
       reason: e.reason,
-      stack: e.reason.stack,
+      stack: e.reason ? e.reason.stack : undefined,
       pageUrl: window.location.href,
       startTime: e.timeStamp,
     };
-    // todo 上报错误
     lazyReport(reportData);
   });
 }

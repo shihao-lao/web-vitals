@@ -10,6 +10,7 @@ function overwriteOpenAndSend() {
     this.method = args[0];
     originalOpen.apply(this, args);
   };
+
   originalProto.send = function newSend(...args) {
     this.startTime = Date.now();
 
@@ -37,12 +38,8 @@ function overwriteOpenAndSend() {
 
     originalSend.apply(this, args);
   };
-};
-//todo
+}
 
-this.removeEventListener(new Event("performance", reportData));
-this.addEventListener("loadend", onLoaded, true);
-originalSend.apply(this, args);
 export default function xhr() {
   overwriteOpenAndSend();
 }

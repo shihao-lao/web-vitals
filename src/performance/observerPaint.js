@@ -1,3 +1,5 @@
+import { lazyReport } from '../report.js';
+
 export default function observerPaint() {
   const entryHandler = (list) => {
     for (const entry of list.getEntries()) {

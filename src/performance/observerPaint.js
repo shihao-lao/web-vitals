@@ -12,6 +12,7 @@ export default function observerPaint() {
           pageUrl: window.location.href,
         };
         // 发送数据 todo
+        lazyReport(reportData);
       }
     }
   };

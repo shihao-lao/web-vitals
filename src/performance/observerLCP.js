@@ -1,4 +1,6 @@
+import { lazyReport } from '../report.js';
 export default function observerLCP() {
+  //todo 上报性能数据
   const entryHandler = (list) => {
     if (observer) {
       observer.disconnect();
@@ -13,7 +15,7 @@ export default function observerLCP() {
         pageUrl: window.location.href,
       };
       // 发送数据 todo
-      console.log(reportData);
+      lazyReport(reportData);
     }
   };
   const observer = new PerformanceObserver(entryHandler);

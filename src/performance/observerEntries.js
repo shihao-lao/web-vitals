@@ -1,3 +1,4 @@
+import { lazyReport } from '../report.js';
 export default function observerEntries() {
   if (document.readyState === "complete") {
     observerEvent();
@@ -35,8 +36,10 @@ export function observerEvent() {
         startTime: performance.now(), // 资源开始加载的时间
       };
       console.log(entry);
+      lazyReport(reportData);
     }
   };
+  //todo 上报性能数据
   let observer = new PerformanceObserver(entryHandler);
   observer.observe({ type: ["resource"], buffered: "true" });
 }

@@ -1,0 +1,53 @@
+export default function error() {
+  // 捕获资源加载失败的错误 js css img 主要是静态资源
+  window.addEventListener(
+    "error",
+    (e) => {
+      console.log(e);
+      const target = e.target;
+      if (!target) {
+        return;
+      }
+      if (target.src || target.href) {
+        const url = target.src || target.href;
+        const reportData = {
+          url,
+          type: "error",
+          subType: "resource",
+          html: target.outerHTML,
+          pageUrl: window.location.href,
+          path: e.path,
+        };
+      }
+    },
+    true,
+  );
+  window.onerror = function (msg, url, lineNo, colNo, error) {
+    const reportData = {
+      url,
+      type: "error",
+      subType: "js",
+      message: msg,
+      stack: error.stack,
+      lineNo, // 错误发生行号
+      error,
+      pageUrl: window.location.href,
+      startTime: performance.now(),
+    };
+    // todo 上报错误
+    lazyReport(reportData);
+  };
+  // 捕获promise错误
+  window.addEventListener("unhandledrejection", (e) => {
+    const reportData = {
+      type: "error",
+      subType: "promise",
+      reason: e.reason,
+      stack: e.reason.stack,
+      pageUrl: window.location.href,
+      startTime: e.timeStamp,
+    };
+    // todo 上报错误
+    lazyReport(reportData);
+  });
+}

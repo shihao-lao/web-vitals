@@ -7,9 +7,9 @@ export default function observerLCP() {
     }
     for (const entry of list.getEntries()) {
       const json = entry.toJSON();
-      console.log(json);
       const reportData = {
         ...json,
+        name: 'LCP',
         type: "performance",
         subType: entry.name,
         pageUrl: window.location.href,

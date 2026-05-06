@@ -6,7 +6,6 @@ export default function observerFCP() {
       if (entry.name === "first-contentful-paint") {
         observer.disconnect();
         const json = entry.toJSON();
-        console.log(json);
         const reportData = {
           ...json,
           type: "performance",
@@ -15,10 +14,9 @@ export default function observerFCP() {
         };
         // 发送数据 todo
         lazyReport(reportData);
-
       }
     }
   };
   const observer = new PerformanceObserver(entryHandler);
-  observer.observe({ name: "paint", buffer: true });
+  observer.observe({ type: "paint", buffered: true });
 }

@@ -12,7 +12,7 @@ export default function observerLoad() {
           startTime: performance.now() - event.timeStamp,
         };
         lazyReport(reportData);
-      });
+      }, true);
     });
   });
 }

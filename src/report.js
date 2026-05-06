@@ -1,6 +1,6 @@
 import config from './config.js'
 import { addCache, clearCache, getCache } from './cache.js'
-import { generateUniqueId } from './utils.js'
+import { generateUniqueId, safeStringify } from './utils.js'
 
 export const originalProto = XMLHttpRequest.prototype
 export const originalSend = originalProto.send
@@ -10,34 +10,40 @@ export default function report(data) {
     if (!config.url) {
         throw new Error('config.url is required')
     }
-    const reportData = JSON.stringify({
+    const payload = {
         id: generateUniqueId(),
         ...data
-    })
-
+    }
+    const reportData = safeStringify(payload)
     // 发送数据
-    const value = beaconRequest(config.url, reportData)
-    if (!value) {
-        config.isImage ? imgRequest(reportData) : xhrRequest(reportData)
+    if (config.isImage) {
+        imgRequest(payload)
+    } else {
+        if (window.navigator.sendBeacon) {
+            return beaconRequest(payload)
+        } else {
+            xhrRequest(payload)
+        }
     }
 }
 
 export function imgRequest(data) {
     const img = new Image()
     // http://127.0.0.1:8080/api?data={...data}
-    img.src = `${config.url}?data=${encodeURIComponent(JSON.stringify(data))}`
+    img.src = `${config.url}?data=${encodeURIComponent(safeStringify(data))}`
 }
 
 export function xhrRequest(data) {
+    const payload = safeStringify(data)
     if (window.requestIdleCallback) {
         const xhr = new XMLHttpRequest()
         originalOpen.call(xhr, 'POST', config.url)
-        originalSend.call(xhr, JSON.stringify(data))
+        originalSend.call(xhr, payload)
     } else {
         setTimeout(() => {
             const xhr = new XMLHttpRequest()
             originalOpen.call(xhr, 'POST', config.url)
-            originalSend.call(xhr, JSON.stringify(data))
+            originalSend.call(xhr, payload)
         }, 3000)
     }
 
@@ -48,15 +54,16 @@ export function isSupportSendBeacon() {
 }
 // const sendBeacon = isSupportSendBeacon() ? navigator.sendBeacon : xhrRequest
 export function beaconRequest(data) {
+    const payload = safeStringify(data)
     let flag = true
     // 浏览器空闲的时候调用
     if (window.requestIdleCallback) {
         window.requestIdleCallback(() => {
-            return flag = sendBeacon(config.url, JSON.stringify(data))
+            return flag = navigator.sendBeacon(config.url, payload)
         }, { timeout: 3000 })
     } else {
         setTimeout(() => {
-            return flag = sendBeacon(config.url, JSON.stringify(data))
+            return flag = navigator.sendBeacon(config.url, payload)
         }, 3000)
     }
 }
@@ -64,8 +71,10 @@ export function beaconRequest(data) {
 export function lazyReport(data) {
     addCache(data)
     const ReportData = getCache()
+    console.error('错误cache', data);
     if (ReportData.length && ReportData.length > config.batchSize) {
         report(ReportData)
+        console.error('监控数据~~~', ReportData);
         clearCache()
     }
 }

@@ -5,7 +5,6 @@ export default function error() {
   window.addEventListener(
     "error",
     (e) => {
-      console.log(e);
       const target = e.target;
       if (!target) {
         return;
@@ -33,6 +32,7 @@ export default function error() {
       message: msg,
       stack: error.stack,
       lineNo, // 错误发生行号
+      colNo, // 错误发生列号
       error,
       pageUrl: window.location.href,
       startTime: performance.now(),
@@ -50,5 +50,5 @@ export default function error() {
       startTime: e.timeStamp,
     };
     lazyReport(reportData);
-  });
+  }, true);
 }

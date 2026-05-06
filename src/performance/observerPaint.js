@@ -6,7 +6,6 @@ export default function observerPaint() {
       if (entry.name === "first-paint") {
         observer.disconnect();
         const json = entry.toJSON();
-        console.log(json);
         const reportData = {
           ...json,
           type: "performance",

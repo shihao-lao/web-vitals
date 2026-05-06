@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>错误监控测试</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+      }
+      .section {
+        margin: 30px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .log {
+        background: #f5f5f5;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>前端监控错误测试</h1>
+
+    <div class="section">
+      <h2>1. JavaScript 错误测试</h2>
+      <button onclick="throwError()">抛出普通错误</button>
+      <button onclick="throwTypeError()">抛出类型错误</button>
+      <button onclick="undefinedFunction()">调用未定义函数</button>
+      <div class="log" id="js-log"></div>
+    </div>
+
+    <div class="section">
+      <h2>2. Promise 错误测试</h2>
+      <button onclick="rejectPromise()">Promise Reject</button>
+      <button onclick="asyncError()">Async 函数错误</button>
+      <div class="log" id="promise-log"></div>
+    </div>
+
+    <div class="section">
+      <h2>3. 资源加载错误测试</h2>
+      <button onclick="loadMissingScript()">加载不存在的 JS</button>
+      <button onclick="loadMissingImage()">加载不存在的图片</button>
+      <button onclick="loadMissingCSS()">加载不存在的 CSS</button>
+      <div class="log" id="resource-log"></div>
+    </div>
+
+    <div class="section">
+      <h2>4. XHR/Fetch 请求测试</h2>
+      <button onclick="testXHR()">测试 XHR 请求</button>
+      <button onclick="testFetch()">测试 Fetch 请求</button>
+      <button onclick="testXHRError()">测试 XHR 错误</button>
+      <div class="log" id="xhr-log"></div>
+    </div>
+
+    <div class="section">
+      <h2>5. 用户行为测试</h2>
+      <button onclick="testClick()">点击测试</button>
+      <button onclick="testHashChange()">Hash 变化测试</button>
+      <div class="log" id="behavior-log"></div>
+    </div>
+
+    <div class="section">
+      <h2>6. 查看接收到的数据</h2>
+      <button onclick="fetchReceivedData()">获取服务器数据</button>
+      <button onclick="clearReceivedData()">清空数据</button>
+      <div class="log" id="data-log"></div>
+    </div>
+
+    <!-- 引入我们的监控 SDK -->
+    <script src="/dist/monitor.js"></script>
+    <script>
+      // 初始化监控 SDK - 使用 config.js 配置
+      window.__WebEyeSDK__.init({
+        url: "http://127.0.0.1:8080/reportData",
+        projectName: "eyeSDK",
+        appId: "861583654321",
+        userId: "123456",
+        isImage: true,
+        batchSize: 10,
+      });
+
+      // // 初始化各个监控模块
+      // window.__WebEyeSDK__.performance();
+      // window.__WebEyeSDK__.behavior();
+      // window.__WebEyeSDK__.error();
+
+      // 1. JavaScript 错误测试
+      // function throwError() {
+      //   throw new Error("这是一个测试错误");
+      // }
+
+      // function throwTypeError() {
+      //   null.toString();
+      // }
+
+      // function undefinedFunction() {
+      //   notDefinedFunction();
+      // }
+
+      // // 2. Promise 错误测试
+      // function rejectPromise() {
+      //   Promise.reject(new Error("Promise 拒绝错误"));
+      // }
+
+      // async function asyncError() {
+      //   throw new Error("Async 函数错误");
+      // }
+
+      // // 3. 资源加载错误测试
+      // function loadMissingScript() {
+      //   const script = document.createElement("script");
+      //   script.src = "/missing-script.js";
+      //   document.body.appendChild(script);
+      // }
+
+      // function loadMissingImage() {
+      //   const img = new Image();
+      //   img.src = "/missing-image.png";
+      // }
+
+      // function loadMissingCSS() {
+      //   const link = document.createElement("link");
+      //   link.rel = "stylesheet";
+      //   link.href = "/missing-style.css";
+      //   document.head.appendChild(link);
+      // }
+
+      // // 4. XHR/Fetch 请求测试
+      // function testXHR() {
+      //   const xhr = new XMLHttpRequest();
+      //   xhr.open("GET", "/api/data");
+      //   xhr.onload = () => log("xhr-log", "XHR 响应: " + xhr.responseText);
+      //   xhr.onerror = () => log("xhr-log", "XHR 错误");
+      //   xhr.send();
+      // }
+
+      // function testFetch() {
+      //   fetch("/api/data")
+      //     .then((res) => res.json())
+      //     .then((data) =>
+      //       log("xhr-log", "Fetch 响应: " + JSON.stringify(data)),
+      //     );
+      // }
+
+      // function testXHRError() {
+      //   const xhr = new XMLHttpRequest();
+      //   xhr.open("GET", "/non-existent-endpoint");
+      //   xhr.onerror = () => log("xhr-log", "XHR 请求失败");
+      //   xhr.send();
+      // }
+
+      // // 5. 用户行为测试
+      // function testClick() {}
+
+      // function testHashChange() {
+      //   window.location.hash = "#test-" + Date.now();
+      // }
+
+      // // 6. 查看接收到的数据
+      // async function fetchReceivedData() {
+      //   const res = await fetch("/api/data");
+      //   const data = await res.json();
+      // }
+
+      // async function clearReceivedData() {
+      //   await fetch("/api/data", { method: "DELETE" });
+      // }
+    </script>
+  </body>
+</html>

@@ -5,9 +5,9 @@ export default function observerEntries() {
   } else {
     const onLoad = () => {
       observerEvent();
-      window.addEventListener("load", onLoad, true);
+      window.removeEventListener("load", onLoad, true);
     };
-    window.removeEventListener("load", onLoad, true);
+    window.addEventListener("load", onLoad, true);
   }
 }
 
@@ -32,10 +32,9 @@ export function observerEvent() {
         responseBodySize: entry.encodedBodySize, // 响应内容大小
         responseHeaderSize: entry.transferSize - entry.encodedBodySize, // 响应头大小
         transferSize: entry.transferSize, // 资源大小
-        resourceSize: entry.decodeBodySize, // 资源大小
+        resourceSize: entry.decodedBodySize, // 资源大小
         startTime: performance.now(), // 资源开始加载的时间
       };
-      console.log(entry);
       lazyReport(reportData);
     }
   };

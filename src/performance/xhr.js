@@ -32,9 +32,9 @@ function overwriteOpenAndSend() {
       lazyReport(reportData);
     };
 
-    this.addEventListener('load', onRequestComplete);
-    this.addEventListener('error', onRequestComplete);
-    this.addEventListener('abort', onRequestComplete);
+    this.addEventListener('load', onRequestComplete, true);
+    this.addEventListener('error', onRequestComplete, true);
+    this.addEventListener('abort', onRequestComplete, true);
 
     originalSend.apply(this, args);
   };

@@ -37,6 +37,7 @@ export default [
             format: "iife",
             name: 'monitor',
             sourcemap: true,
+            exports: 'auto'
         },
     },
     {

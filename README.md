@@ -16,7 +16,7 @@
 | 资源加载错误 | 监控 img/script/css 加载失败 | ✅ |
 | XHR/Fetch 错误 | 接口请求异常捕获 | ✅ |
 | React ErrorBoundary | React 组件渲染错误 | ✅ |
-| Vue errorHandler | Vue 全局错误处理 | ✅ |
+| Vue errorHandler | Vue 全局错误处理 | ✅ | 
 
 ### 2. 性能监控 (Performance Monitoring)
 

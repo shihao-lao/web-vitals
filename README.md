@@ -5,10 +5,10 @@
 **web-vitals** 是一个专注于前端应用监控的 JavaScript SDK，提供 **性能指标采集**、**错误捕获**、**用户行为追踪** 三大核心能力。
 
 
-## ✨ 功能特性
-
+## ✨ 功能特性 
+ 
 ### 1. 错误监控 (Error Monitoring)
-
+ 
 | 类型 | 说明 | 状态 |
 |------|------|------|
 | JavaScript 错误 | 捕获运行时 JS 异常 | ✅ |
@@ -16,7 +16,7 @@
 | 资源加载错误 | 监控 img/script/css 加载失败 | ✅ |
 | XHR/Fetch 错误 | 接口请求异常捕获 | ✅ |
 | React ErrorBoundary | React 组件渲染错误 | ✅ |
-| Vue errorHandler | Vue 全局错误处理 | ✅ |
+| Vue errorHandler | Vue 全局错误处理 | ✅ | 
 
 ### 2. 性能监控 (Performance Monitoring)
 
@@ -37,17 +37,28 @@
 | 路由变化 | Hash 路由切换记录 | ✅ |
 ---
 
-## 🚀 demo演示
+## 🛠️ 开发指南
 
-### 方式一：测试html文件：测试html文件
+### 本地开发
 
-```html
-cd web-vitals
+```bash
+# 安装依赖
+pnpm install
+
+# 构建 SDK
+pnpm build
+
+# 启动测试服务器
 node server.js
-open http://127.0.0.1:8080/error/index.html
 ```
 
-### 方式二：框架演示
+### 测试页面
+
+启动服务器后访问：
+- 错误测试：http://127.0.0.1:8080/error/index.html
+
+
+## 🚀 框架演示
 
 ```bash
 cd vue-test
@@ -116,25 +127,4 @@ web-vitals/
 ```
 
 ---
-
-## 🛠️ 开发指南
-
-### 本地开发
-
-```bash
-# 安装依赖
-pnpm install
-
-# 构建 SDK
-pnpm build
-
-# 启动测试服务器
-node server.js
-```
-
-### 测试页面
-
-启动服务器后访问：
-- 错误测试：http://127.0.0.1:8080/error/index.html
-- React 测试：http://localhost:5173/
 

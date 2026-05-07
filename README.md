@@ -37,17 +37,28 @@
 | 路由变化 | Hash 路由切换记录 | ✅ |
 ---
 
-## 🚀 demo演示
+## 🛠️ 开发指南
 
-### 方式一：测试html文件：测试html文件
+### 本地开发
 
-```html
-cd web-vitals
+```bash
+# 安装依赖
+pnpm install
+
+# 构建 SDK
+pnpm build
+
+# 启动测试服务器
 node server.js
-open http://127.0.0.1:8080/error/index.html
 ```
 
-### 方式二：框架演示
+### 测试页面
+
+启动服务器后访问：
+- 错误测试：http://127.0.0.1:8080/error/index.html
+
+
+## 🚀 框架演示
 
 ```bash
 cd vue-test
@@ -116,25 +127,4 @@ web-vitals/
 ```
 
 ---
-
-## 🛠️ 开发指南
-
-### 本地开发
-
-```bash
-# 安装依赖
-pnpm install
-
-# 构建 SDK
-pnpm build
-
-# 启动测试服务器
-node server.js
-```
-
-### 测试页面
-
-启动服务器后访问：
-- 错误测试：http://127.0.0.1:8080/error/index.html
-- React 测试：http://localhost:5173/
 

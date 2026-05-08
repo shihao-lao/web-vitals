@@ -9,7 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.16.0",
     "error-stack-parser": "^2.1.4",
+    "source-map": "^0.7.6",
+    "source-map-js": "^1.2.1",
     "vue": "^3.5.32",
     "vue-router": "4"
   },

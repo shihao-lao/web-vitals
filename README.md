@@ -1,11 +1,10 @@
+# web-vitals
 
-## 📖 项目简介
+前端应用监控 JavaScript SDK，提供**性能指标采集**、**错误捕获**、**用户行为追踪**三大核心能力。
 
-**web-vitals** 是一个专注于前端应用监控的 JavaScript SDK，提供 **性能指标采集**、**错误捕获**、**用户行为追踪** 三大核心能力。
+## 功能特性
 
-## ✨ 功能特性
-
-### 1. 错误监控 (Error Monitoring)
+### 错误监控
 
 | 类型 | 说明 | 状态 |
 |------|------|------|
@@ -16,7 +15,7 @@
 | React ErrorBoundary | React 组件渲染错误 | ✅ |
 | Vue errorHandler | Vue 全局错误处理 | ✅ |
 
-### 2. 性能监控 (Performance Monitoring)
+### 性能监控
 
 | 指标 | 说明 | 状态 |
 |------|------|------|
@@ -26,7 +25,7 @@
 | 资源加载耗时 | JS/CSS/图片加载时间 | ✅ |
 | XHR 请求耗时 | 接口请求响应时间 | ✅ |
 
-### 3. 行为监控 (Behavior Tracking)
+### 行为监控
 
 | 类型 | 说明 | 状态 |
 |------|------|------|
@@ -34,42 +33,14 @@
 | 页面访问 (PV) | 页面浏览量统计 | ✅ |
 | 路由变化 | Hash 路由切换记录 | ✅ |
 
----
+## 快速开始
 
-## 🛠️ 开发指南
-
-### 本地开发
+### 安装与构建
 
 ```bash
-# 安装依赖
 pnpm install
-
-# 构建 SDK
 pnpm build
-
-# 启动测试服务器
-node server.js
 ```
-
-### 测试页面
-
-启动服务器后访问：
-
-- 错误测试：<http://127.0.0.1:8080/error/index.html>
-
-## 🚀 框架演示
-
-```bash
-cd vue-test
-npm install
-npm run dev
-
-cd react-test
-npm install
-npm run dev
-```
-
----
 
 ### Vue 插件方式
 
@@ -88,12 +59,32 @@ app.mount('#app');
 ```javascript
 import WebEye from '@webeye/sdk';
 
-const BoundBoundary = WebEye.BoundBoundary;
+// 使用 ErrorBoundary 捕获组件渲染错误
+const ErrorBoundary = WebEye.ErrorBoundary;
 ```
 
----
+## 本地开发
 
-## 🏗️ 项目结构
+```bash
+# 启动测试服务器
+node server.js
+```
+
+启动后访问测试页面：
+
+- 错误测试：<http://127.0.0.1:8080/error/index.html>
+
+### 框架演示项目
+
+```bash
+# Vue 演示
+cd vue-test && npm install && npm run dev
+
+# React 演示
+cd react-test && npm install && npm run dev
+```
+
+## 项目结构
 
 ```
 web-vitals/
@@ -117,7 +108,6 @@ web-vitals/
 │       ├── xhr.js            # XHR 监控
 │       └── fetch.js          # Fetch 监控
 ├── demo/                     # 演示页面
-│   └── error/                # 错误测试页
 ├── react-test/               # React 测试项目
 ├── vue-test/                 # Vue 测试项目
 ├── rollup/                   # 构建配置
@@ -127,5 +117,3 @@ web-vitals/
 ├── server.js                 # Express 测试服务器
 └── package.json
 ```
-
----

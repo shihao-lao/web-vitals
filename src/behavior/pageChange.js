@@ -2,7 +2,7 @@ import { generateUniqueId } from '../utils.js';
 import { lazyReport } from '../report.js';
 export default function pageChange() {
     let oldUrl = ''
-    window.addEventListener('hashChange', (e) => {
+    window.addEventListener('hashchange', (e) => {
         const newUrl = e.target.href
         const reportData = {
             type: 'behavior',
@@ -17,8 +17,8 @@ export default function pageChange() {
     }, true)
     // 与上面进行区分
     let from = ''
-    window.addEventListener('hashChange', (e) => {
-        const to = this.window.location.href
+    window.addEventListener('hashchange', (e) => {
+        const to = window.location.href
         const reportData = {
             type: 'behavior',
             subType: 'popState',

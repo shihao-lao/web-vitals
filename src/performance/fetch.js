@@ -30,6 +30,7 @@ function overwriteFetch() {
         reportData.success = false;
         // todo 上报性能数据
         lazyReport(reportData);
+        throw err;
       });
   };
 }

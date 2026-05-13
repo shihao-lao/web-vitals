@@ -11,10 +11,14 @@
         <li>✅ 路由切换测试</li>
       </ul>
     </div>
+    <button @click="throwError" class="error-btn">触发错误</button>
   </div>
 </template>
 
 <script setup lang="ts">
+const throwError = () => {
+  throw new Error('这是一个测试错误')
+}
 </script>
 
 <style scoped>
@@ -45,5 +49,21 @@
 .card li {
   padding: 8px 0;
   font-size: 16px;
+}
+
+.error-btn {
+  margin-top: 20px;
+  padding: 10px 24px;
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.error-btn:hover {
+  background: #ff7875;
 }
 </style>

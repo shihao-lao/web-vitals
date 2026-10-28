@@ -1,7 +1,7 @@
 import config from './config.js'
 import { addCache, clearCache, getCache, getCacheSize } from './cache.js'
 import { baseContext } from './context.js'
-import { generateUniqueId, safeStringify } from './utils.js'
+import { generateUniqueId, safeStringify, toEpochTime } from './utils.js'
 
 export const originalProto = XMLHttpRequest.prototype
 export const originalSend = originalProto.send
@@ -117,6 +117,12 @@ export function lazyReport(data) {
             warn(`beforeSend 执行异常：${error && error.message}`)
         }
         if (!event) return
+    }
+    // startTime 保持相对时间（用于算差值），timestamp 给绝对时间（用于和服务端日志对齐）
+    if (!Number.isFinite(event.timestamp)) {
+        const startTime = Number.isFinite(event.startTime) ? event.startTime : performance.now()
+        // 兼容仍以 Date.now() 作为 startTime 的旧采集器：已是绝对时间就不再叠加 timeOrigin
+        event.timestamp = startTime > 1e12 ? Math.round(startTime) : toEpochTime(startTime)
     }
     addCache(event)
     const batchSize = Number.isFinite(config.batchSize) && config.batchSize > 0 ? config.batchSize : 10

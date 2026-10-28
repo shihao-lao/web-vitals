@@ -4,23 +4,25 @@ import error from "./error/index.js";
 import { setConfig } from "./config.js";
 import { lazyReport } from "./report.js";
 
+let initialized = false;
+const installedApps = new WeakSet();
+
 // 定义 install 函数
-function install(Vue, options) {
-  if (window.__WebEyeSDK__.vue) {
-    return;
-  }
-  window.__WebEyeSDK__.vue = true;
+function install(Vue, options = {}) {
+  init(options);
+  if (installedApps.has(Vue)) return;
+  installedApps.add(Vue);
   const handler = Vue.config.errorHandler;
   Vue.config.errorHandler = function (err, vm, info) {
     const reportData = {
-      error: err.stack,
+      error: err && err.stack,
+      message: err && err.message,
       subType: 'vue',
       type: 'error',
       info,
-      startTime: Date.now(),
+      startTime: window.performance.now(),
       pageUrl: window.location.href,
     };
-    console.log('vue error', reportData)
     lazyReport(reportData);
     if (handler) {
       handler.call(this, err, vm, info);
@@ -30,24 +32,23 @@ function install(Vue, options) {
 
 // 针对 react 错误边界处理
 function errorBoundary(err, info) {
-  if (window.__WebEyeSDK__.react) {
-    return;
-  }
-  window.__WebEyeSDK__.react = true;
   const reportData = {
-    error: err.stack,
+    error: err && err.stack,
+    message: err && err.message,
     subType: 'react',
     type: 'error',
     info,
-    startTime: Date.now(),
+    startTime: window.performance.now(),
     pageUrl: window.location.href,
   };
   lazyReport(reportData);
 }
 
 // 初始化函数
-function init(options) {
+function init(options = {}) {
   setConfig(options);
+  if (initialized) return;
+  initialized = true;
   performance()
   error()
   behavior()

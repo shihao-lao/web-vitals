@@ -553,3 +553,50 @@ test('the load metric reads navigation timing instead of a near-zero delta', asy
   assert.equal(load.ttfb, 120);
   assert.equal(load.startTime, 900);
 });
+
+test('relative time converts back to an epoch timestamp', async () => {
+  const b = await browser();
+  b.window.performance.now = () => 1000;
+  b.window.performance.timeOrigin = 1700000000000;
+  const { toEpochTime } = await b.importModule('src/utils.js');
+  assert.equal(toEpochTime(250), 1700000000250);
+});
+
+test('each event is stamped from its own startTime, not from flush time', async () => {
+  const b = await browser();
+  b.window.performance.now = () => 1000;
+  b.window.performance.timeOrigin = 1700000000000;
+  await b.configure();
+  const { lazyReport } = await b.importModule('src/report.js');
+  lazyReport({ startTime: 250, message: 'early' });
+  lazyReport({ startTime: 900, message: 'late' });
+  const cache = (await b.importModule('src/cache.js')).getCache();
+  assert.equal(cache[0].timestamp, 1700000000250);
+  assert.equal(cache[1].timestamp, 1700000000900);
+  assert.equal(cache[1].startTime, 900);
+});
+
+test('an absolute startTime from older collectors is not shifted twice', async () => {
+  const b = await browser();
+  b.window.performance.now = () => 1000;
+  b.window.performance.timeOrigin = 1700000000000;
+  await b.configure();
+  const { lazyReport } = await b.importModule('src/report.js');
+  lazyReport({ startTime: 1699999999000, message: 'legacy' });
+  const event = (await b.importModule('src/cache.js')).getCache()[0];
+  assert.equal(event.timestamp, 1699999999000);
+});
+
+test('Vue errors carry a relative startTime plus an epoch timestamp', async () => {
+  const b = await browser();
+  b.window.performance.now = () => 777;
+  b.window.performance.timeOrigin = 1700000000000;
+  const sdk = await b.importModule('src/WebEyeSDK.js');
+  const app = { config: {} };
+  sdk.install(app, { url: 'https://collector.test/report', batchSize: 100 });
+  app.config.errorHandler(new Error('vue boom'), null, 'render');
+  const event = (await b.importModule('src/cache.js')).getCache().find(item => item.subType === 'vue');
+  assert.equal(event.startTime, 777);
+  assert.equal(event.timestamp, 1700000000777);
+  assert.equal(event.message, 'vue boom');
+});

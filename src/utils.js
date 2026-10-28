@@ -112,3 +112,15 @@ export function truncate(value, max = 200) {
     const text = String(value)
     return text.length > max ? `${text.slice(0, max)}…` : text
 }
+
+// 把相对 navigationStart 的时间换算成 Unix 毫秒。
+// 差值计算继续用 performance.now()（单调，不受系统校时影响），
+// 但对外必须给出绝对时间，否则无法和服务器日志对齐。
+export function toEpochTime(relative) {
+    const offset = Number.isFinite(relative) ? relative : performance.now()
+    // timeOrigin 是页面开始导航时的绝对时间戳
+    const origin = typeof performance.timeOrigin === 'number'
+        ? performance.timeOrigin
+        : Date.now() - performance.now()
+    return Math.round(origin + offset)
+}

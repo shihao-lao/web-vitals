@@ -1,80 +1,129 @@
 import config from './config.js'
-import { addCache, clearCache, getCache } from './cache.js'
+import { addCache, clearCache, getCache, getCacheSize } from './cache.js'
+import { baseContext } from './context.js'
 import { generateUniqueId, safeStringify } from './utils.js'
 
 export const originalProto = XMLHttpRequest.prototype
 export const originalSend = originalProto.send
 export const originalOpen = originalProto.open
+// Preserve a transport that cannot recursively enter fetch instrumentation.
+const originalFetch = window.fetch
 
-export default function report(data) {
+const DEFAULT_URL = 'http://127.0.0.1:8080/reportData'
+
+let flushTimer = null
+let initialized = false
+let warned = false
+
+function warn(message) {
+    if (warned || typeof console === 'undefined' || !console.warn) return
+    warned = true
+    console.warn(`[WebEye] ${message}`)
+}
+
+function ensureEndpoint() {
     if (!config.url) {
-        throw new Error('config.url is required')
+        warn('config.url 为空，事件只会留在内存队列中')
+        return false
     }
+    if (config.url === DEFAULT_URL) {
+        warn('仍在向默认地址 127.0.0.1:8080 上报，请通过 init({ url }) 配置采集端')
+    }
+    return true
+}
+
+export default function report(data, { immediate = false } = {}) {
+    if (!ensureEndpoint()) return false
     const payload = {
         id: generateUniqueId(),
-        ...data
+        ...(Array.isArray(data) ? { events: data } : data),
     }
-    const reportData = safeStringify(payload)
-    // 发送数据
-    if (config.isImage) {
-        imgRequest(payload)
-    } else {
-        if (window.navigator.sendBeacon) {
-            return beaconRequest(payload)
-        } else {
-            xhrRequest(payload)
-        }
-    }
+    // Lifecycle flushes bypass scheduling and prefer an unload-safe transport.
+    if (immediate || !config.isImage) return beaconRequest(payload)
+    return imgRequest(payload)
 }
 
 export function imgRequest(data) {
     const img = new Image()
-    // http://127.0.0.1:8080/api?data={...data}
-    img.src = `${config.url}?data=${encodeURIComponent(safeStringify(data))}`
+    const separator = config.url.includes('?') ? '&' : '?'
+    img.src = `${config.url}${separator}data=${encodeURIComponent(safeStringify(data))}`
+    return true
 }
 
 export function xhrRequest(data) {
-    const payload = safeStringify(data)
-    if (window.requestIdleCallback) {
-        const xhr = new XMLHttpRequest()
-        originalOpen.call(xhr, 'POST', config.url)
-        originalSend.call(xhr, payload)
-    } else {
-        setTimeout(() => {
-            const xhr = new XMLHttpRequest()
-            originalOpen.call(xhr, 'POST', config.url)
-            originalSend.call(xhr, payload)
-        }, 3000)
-    }
-
+    const xhr = new XMLHttpRequest()
+    originalOpen.call(xhr, 'POST', config.url)
+    originalSend.call(xhr, safeStringify(data))
+    return true
 }
 
 export function isSupportSendBeacon() {
-    return 'sendBeacon' in navigator
+    return typeof window.navigator.sendBeacon === 'function'
 }
-// const sendBeacon = isSupportSendBeacon() ? navigator.sendBeacon : xhrRequest
+
 export function beaconRequest(data) {
     const payload = safeStringify(data)
-    let flag = true
-    // 浏览器空闲的时候调用
-    if (window.requestIdleCallback) {
-        window.requestIdleCallback(() => {
-            return flag = navigator.sendBeacon(config.url, payload)
-        }, { timeout: 3000 })
-    } else {
-        setTimeout(() => {
-            return flag = navigator.sendBeacon(config.url, payload)
-        }, 3000)
+    if (isSupportSendBeacon()) {
+        try {
+            if (window.navigator.sendBeacon(config.url, payload)) return true
+        } catch {
+            // Try the fallback if the browser rejects the beacon payload.
+        }
+    }
+    if (typeof originalFetch === 'function') {
+        // Avoid reporting a transport failure as an unhandled application error.
+        originalFetch.call(window, config.url, {
+            method: 'POST', body: payload, keepalive: true,
+        }).catch(() => {})
+        return true
+    }
+    return xhrRequest(data)
+}
+
+export function initReporting() {
+    if (initialized) return
+    initialized = true
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') flushReport({ immediate: true })
+    })
+    window.addEventListener('pagehide', () => flushReport({ immediate: true }))
+}
+
+export function flushReport(options) {
+    if (flushTimer !== null) {
+        clearTimeout(flushTimer)
+        flushTimer = null
+    }
+    if (!getCacheSize()) return
+    const data = getCache()
+    try {
+        // Clear only after a transport has accepted the payload synchronously.
+        if (report(data, options) === false) return
+        clearCache()
+    } catch (error) {
+        // 上报链路自身的异常不能外溢到业务代码；队列保留，等下次重试
+        warn(`上报失败：${error && error.message}`)
     }
 }
-// 批量上报数据
+
 export function lazyReport(data) {
-    addCache(data)
-    const ReportData = getCache()
-    console.error('错误cache', data);
-    if (ReportData.length && ReportData.length > config.batchSize) {
-        report(ReportData)
-        console.error('监控数据~~~', ReportData);
-        clearCache()
+    initReporting()
+    // 每条事件统一补上应用/用户/会话/链路上下文
+    let event = { ...baseContext(), pageUrl: window.location.href, ...data }
+    if (typeof config.beforeSend === 'function') {
+        try {
+            event = config.beforeSend(event)
+        } catch (error) {
+            warn(`beforeSend 执行异常：${error && error.message}`)
+        }
+        if (!event) return
+    }
+    addCache(event)
+    const batchSize = Number.isFinite(config.batchSize) && config.batchSize > 0 ? config.batchSize : 10
+    if (getCacheSize() >= batchSize || document.visibilityState === 'hidden') {
+        flushReport({ immediate: document.visibilityState === 'hidden' })
+    } else if (flushTimer === null) {
+        const interval = Number.isFinite(config.flushInterval) && config.flushInterval > 0 ? config.flushInterval : 3000
+        flushTimer = setTimeout(() => flushReport(), interval)
     }
 }
